@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["clientExtensions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String       @id @default(cuid())
+  email     String?      @unique
+  name      String?
+  createdAt DateTime     @default(now())
+  sessions  ChatSession[]
+}
+
+model ChatSession {
+  id         String    @id @default(cuid())
+  userId     String?   
+  user       User?     @relation(fields: [userId], references: [id])
+  title      String
+  topic      String?    // optional short topic/summary
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  messages   Message[]
+
+  @@index([userId])
+  @@index([updatedAt])
+}
+
+model Message {
+  id         String      @id @default(cuid())
+  sessionId  String
+  session    ChatSession @relation(fields: [sessionId], references: [id])
+  role       MessageRole // enum: user | assistant | system
+  content    String
+  createdAt  DateTime    @default(now())
+  parentId   String?     // optional for threading (reply-to)
+  parent     Message?    @relation("MessageReplies", fields: [parentId], references: [id])
+  replies    Message[]   @relation("MessageReplies")
+
+  @@index([sessionId, createdAt])
+}
+
+enum MessageRole {
+  user
+  assistant
+  system
+}
