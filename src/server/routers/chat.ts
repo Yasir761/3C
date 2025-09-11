@@ -44,6 +44,20 @@ export const chatRouter = router({
       return session;
     }),
 
+  deleteSession: publicProcedure
+    .input(z.object({ sessionId: z.string() }))
+    .mutation(async ({ input }) => {
+      // Delete related messages first (to avoid FK constraint errors if cascade isn’t set)
+      await prisma.message.deleteMany({
+        where: { sessionId: input.sessionId },
+      });
+
+      // Then delete the session
+      return await prisma.chatSession.delete({
+        where: { id: input.sessionId },
+      });
+    }),
+
   getMessages: publicProcedure
     .input(
       z.object({

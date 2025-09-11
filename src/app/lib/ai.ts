@@ -1,16 +1,21 @@
 import { Groq } from "groq-sdk";
+import { ChatMessage, UserProfile } from "../career/schema";
+import { systemPrompt, profilePrompt } from "../career/prompt";
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+const groq = new Groq({ apiKey: process.env.NEXT_PUBLIC_GROQ_API });
 
-type GroqMessage = {
-  role: "user" | "assistant" | "system";
-  content: string;
-};
+export async function askGroq(messages: ChatMessage[], userProfile?: UserProfile) {
+  const finalMessages: ChatMessage[] = [systemPrompt()];
 
-export async function askGroq(messages: GroqMessage[]) {
+  if (userProfile) {
+    finalMessages.push(profilePrompt(userProfile));
+  }
+
+  finalMessages.push(...messages);
+
   const response = await groq.chat.completions.create({
-    model: "llama-3.1-70b-versatile", // adjust if needed
-    messages,
+    model: "openai/gpt-oss-20b",
+    messages: finalMessages,
   });
 
   return response.choices[0]?.message?.content || "";
