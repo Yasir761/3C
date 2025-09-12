@@ -9,17 +9,45 @@ datasource db {
 }
 
 model User {
-  id        String       @id @default(cuid())
-  email     String?      @unique
-  name      String?
-  createdAt DateTime     @default(now())
-  sessions  ChatSession[]
+  id            String       @id @default(cuid())
+  email         String?      @unique
+  emailVerified DateTime?    // Required by NextAuth
+  name          String?
+  password      String?      // Renamed from hashedPassword for consistency
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt // Added updatedAt
+  
+  // Relations
+  sessions      ChatSession[]
+  profile       UserProfile?
+  accounts      Account[]    // NextAuth accounts
+  sessions_auth Session[]    // NextAuth sessions (renamed to avoid conflict)
+
+  @@map("users") // Optional: if you want to customize table name
+}
+
+model UserProfile {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentSkills      String[] // array of skills
+  experienceYears    Int?
+  education          String?
+  goals              String?
+  interests          String[]
+  preferredIndustries String[] // e.g. ["Tech", "Healthcare"]
+  locationPreference String?  // e.g. "Remote", "USA"
+  desiredRoles       String[] // e.g. ["Full Stack Developer", "Data Scientist"]
+  updatedAt          DateTime @updatedAt
+  createdAt          DateTime @default(now())
+
+  @@map("user_profiles")
 }
 
 model ChatSession {
   id         String    @id @default(cuid())
   userId     String?   
-  user       User?     @relation(fields: [userId], references: [id])
+  user       User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
   title      String
   topic      String?    // optional short topic/summary
   createdAt  DateTime  @default(now())
@@ -28,12 +56,13 @@ model ChatSession {
 
   @@index([userId])
   @@index([updatedAt])
+  @@map("chat_sessions")
 }
 
 model Message {
   id         String      @id @default(cuid())
   sessionId  String
-  session    ChatSession @relation(fields: [sessionId], references: [id])
+  session    ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   role       MessageRole // enum: user | assistant | system
   content    String
   createdAt  DateTime    @default(now())
@@ -42,10 +71,52 @@ model Message {
   replies    Message[]   @relation("MessageReplies")
 
   @@index([sessionId, createdAt])
+  @@map("messages")
 }
 
 enum MessageRole {
   user
   assistant
   system
+}
+
+// NextAuth required models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
 }

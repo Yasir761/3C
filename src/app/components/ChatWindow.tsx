@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { trpc } from "@/utils/trpc";
-import MessageBubble from "@/app/components/MessageBubbles";
+import { MessageBubble } from "@/app/components/MessageBubbles";
 import TypingIndicator from "@/app/components/TypingIndicator";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -20,6 +20,7 @@ export default function ChatWindow({
 
   const hasSession = !!sessionId;
 
+  // Fetch messages only for the logged-in user
   const messagesQuery = trpc.chat.getMessages.useQuery(
     { sessionId: sessionId ?? "", page, pageSize: 50 },
     { enabled: hasSession }
@@ -28,7 +29,7 @@ export default function ChatWindow({
   const sendMessage = trpc.chat.sendMessage.useMutation();
   const utils = trpc.useUtils();
 
-  // Auto-scroll to bottom when messages update
+  // Auto-scroll
   useEffect(() => {
     if (!messagesQuery.data || !messagesContainerRef.current) return;
     const el = messagesContainerRef.current;
@@ -41,7 +42,6 @@ export default function ChatWindow({
     try {
       await sendMessage.mutateAsync({
         sessionId,
-        role: "user",
         content: text.trim(),
       });
       await utils.chat.getMessages.invalidate({ sessionId, page, pageSize: 50 });
@@ -52,6 +52,13 @@ export default function ChatWindow({
       setIsTyping(false);
     }
   };
+
+  const starterPrompts = [
+    "What career roles fit my skills?",
+    "How can I transition into data science?",
+    "Suggest remote-friendly job options",
+    "What courses should I take for web development?",
+  ];
 
   if (!hasSession) {
     return (
@@ -64,12 +71,28 @@ export default function ChatWindow({
             className="mb-8"
           >
             <div className="text-7xl mb-4 animate-bounce">🎯</div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Career Guidance Hub</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+              Career Guidance Hub
+            </h1>
             <p className="text-gray-600 max-w-xl leading-relaxed">
               Your AI career counselor provides personalized guidance and actionable advice.
               Start a new session to get personalized suggestions.
             </p>
           </motion.div>
+
+          <div className="flex flex-col gap-3 mt-6 w-full max-w-md">
+            {starterPrompts.map((suggestion) => (
+              <motion.button
+                key={suggestion}
+                onClick={() => onCreateSession?.(suggestion)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                className="px-4 py-3 text-sm rounded-xl bg-white border border-gray-200 shadow-sm hover:shadow-md hover:bg-gray-50 transition text-gray-700"
+              >
+                {suggestion}
+              </motion.button>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -82,22 +105,28 @@ export default function ChatWindow({
         <div className="flex items-center gap-3">
           <span className="text-white font-bold">🎯</span>
           <div>
-            <div className="text-sm font-semibold text-gray-800">3C - Your Career Counselor Chat</div>
+            <div className="text-sm font-semibold text-gray-800">
+              3C - Your Career Counselor Chat
+            </div>
             <div className="text-xs text-gray-500">AI-powered guidance</div>
           </div>
         </div>
         <div className="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded-full">
-          {messagesQuery.isLoading ? "Loading…" : `${messagesQuery.data?.length ?? 0} messages`}
+          {messagesQuery.isLoading
+            ? "Loading…"
+            : `${messagesQuery.data?.length ?? 0} messages`}
         </div>
       </div>
 
-      {/* Messages container */}
+      {/* Messages */}
       <div
         ref={messagesContainerRef}
         className="flex-1 overflow-auto p-4 sm:p-6 space-y-4 scroll-smooth min-h-0"
       >
         {messagesQuery.isLoading ? (
-          <div className="flex items-center justify-center py-8 text-gray-500">Loading…</div>
+          <div className="flex items-center justify-center py-8 text-gray-500">
+            Loading…
+          </div>
         ) : (
           <AnimatePresence>
             {messagesQuery.data?.map((m) => (
@@ -110,8 +139,7 @@ export default function ChatWindow({
               >
                 <MessageBubble
                   role={m.role as "user" | "assistant"}
-                  content={m.content}
-                  timestamp={m.createdAt} // <-- Pass timestamp
+                  content={m.content.trim()}
                 />
               </motion.div>
             ))}
@@ -130,7 +158,7 @@ export default function ChatWindow({
         )}
       </div>
 
-      {/* Input area */}
+      {/* Input */}
       <div className="p-3 sm:p-4 border-t border-gray-200 bg-white flex items-center gap-3">
         <textarea
           value={text}

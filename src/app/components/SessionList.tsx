@@ -17,6 +17,7 @@ export default function SessionList({
   const [page, setPage] = useState(1);
   const utils = trpc.useUtils();
 
+  // Fetch only sessions belonging to the logged-in user
   const { data, isLoading } = trpc.chat.listSessions.useQuery({
     page,
     pageSize: 12,

@@ -1,6 +1,6 @@
 import { Groq } from "groq-sdk";
-import { ChatMessage, UserProfile } from "../career/schema";
-import { systemPrompt, profilePrompt } from "../career/prompt";
+import { UserProfile } from "@prisma/client";
+import { systemPrompt, profilePrompt, ChatMessage } from "../career/prompt";
 
 const groq = new Groq({ apiKey: process.env.NEXT_PUBLIC_GROQ_API });
 

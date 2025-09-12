@@ -2,11 +2,12 @@
 
 import { motion } from "framer-motion";
 import clsx from "clsx";
+import ReactMarkdown from "react-markdown";
 
-export default function MessageBubble({
+export function MessageBubble({
   role,
   content,
-  timestamp, // new prop
+  timestamp,
 }: {
   role: "user" | "assistant";
   content: string;
@@ -31,11 +32,7 @@ export default function MessageBubble({
       })}
     >
       <motion.div
-        whileHover={{
-          scale: 1.02,
-          y: -1,
-          transition: { duration: 0.2 },
-        }}
+        whileHover={{ scale: 1.02, y: -1, transition: { duration: 0.2 } }}
         whileTap={{ scale: 0.97 }}
         className={clsx(
           "relative rounded-2xl px-4 py-2.5 max-w-[80%] sm:max-w-[65%] break-words text-sm leading-relaxed backdrop-blur-sm",
@@ -45,7 +42,7 @@ export default function MessageBubble({
             : "bg-gradient-to-br from-white via-gray-50 to-gray-100 text-gray-800 shadow-gray-500/20 border-gray-200"
         )}
       >
-        {/* Subtle ambient glow */}
+        {/* Ambient glow */}
         <motion.div
           className={clsx(
             "absolute inset-0 rounded-2xl opacity-40 blur-sm -z-10",
@@ -53,18 +50,18 @@ export default function MessageBubble({
               ? "bg-gradient-to-br from-blue-400 to-purple-500"
               : "bg-gradient-to-br from-gray-200 to-gray-300"
           )}
-          animate={{
-            opacity: [0.3, 0.6, 0.3],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
+          animate={{ opacity: [0.3, 0.6, 0.3] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         />
 
-        {/* Message content */}
-        <div className="relative z-10">{content}</div>
+        {/* Message content rendered with Markdown */}
+        <div className="relative z-10">
+          <ReactMarkdown
+            components={{ a: (props) => <a {...props} target="_blank" rel="noopener noreferrer" /> }}
+          >
+            {content}
+          </ReactMarkdown>
+        </div>
 
         {/* Timestamp */}
         {timestamp && (
@@ -73,13 +70,10 @@ export default function MessageBubble({
           </div>
         )}
 
-        {/* Premium shine effect on hover */}
+        {/* Premium shine effect */}
         <motion.div
           className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white to-transparent opacity-0"
-          whileHover={{
-            opacity: [0, 0.1, 0],
-            x: [-100, 100],
-          }}
+          whileHover={{ opacity: [0, 0.1, 0], x: [-100, 100] }}
           transition={{ duration: 0.6 }}
         />
 

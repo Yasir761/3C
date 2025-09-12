@@ -5,6 +5,7 @@ import { trpc } from "@/utils/trpc";
 import SessionList from "@/app/components/SessionList";
 import ChatWindow from "@/app/components/ChatWindow";
 import { motion, AnimatePresence } from "framer-motion";
+import { signOut } from "next-auth/react";
 
 export default function CareerCounselorApp() {
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
@@ -30,7 +31,7 @@ export default function CareerCounselorApp() {
     const title = extractTitleFromPrompt(prompt);
     const newSession = await createSession.mutateAsync({ title, topic: "Career Counseling" });
     setCurrentSessionId(newSession.id);
-    await sendMessage.mutateAsync({ sessionId: newSession.id, role: "user", content: prompt });
+    await sendMessage.mutateAsync({ sessionId: newSession.id, content: prompt });
     await Promise.all([
       utils.chat.listSessions.invalidate({ page: 1, pageSize: 12 }),
       utils.chat.getMessages.invalidate({ sessionId: newSession.id, page: 1, pageSize: 50 }),
@@ -87,7 +88,7 @@ export default function CareerCounselorApp() {
 
       {/* Chat Window */}
       <div className="flex-1 flex flex-col relative">
-        {/* Mobile header with menu button */}
+        {/* Mobile header with menu button and logout */}
         <div className="md:hidden flex items-center justify-between px-4 py-3 bg-white shadow-sm border-b border-gray-200">
           <button
             onClick={() => setIsSidebarOpen(true)}
@@ -96,7 +97,22 @@ export default function CareerCounselorApp() {
             ☰ Sessions
           </button>
           <span className="font-semibold text-gray-700">Career Counseling</span>
-          <div className="w-8" /> {/* placeholder for symmetry */}
+          <button
+            onClick={() => signOut({ callbackUrl: "/" })}
+            className="px-3 py-2 bg-red-100 rounded-lg hover:bg-red-200 transition text-red-600 font-medium text-sm"
+          >
+            Logout
+          </button>
+        </div>
+
+        {/* Desktop header logout button */}
+        <div className="hidden md:flex justify-end px-4 py-3 bg-white shadow-sm border-b border-gray-200">
+          <button
+            onClick={() => signOut({ callbackUrl: "/" })}
+            className="px-4 py-2 bg-red-100 rounded-lg hover:bg-red-200 transition text-red-600 font-medium text-sm"
+          >
+            Logout
+          </button>
         </div>
 
         <ChatWindow
