@@ -1,43 +1,257 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-
+@custom-variant dark (&:is(.dark *));
 
 /* html, body, #__next {
   height: 100%;
 } */
 
-
-
-html, body {
+/* html, body {
   @apply bg-white text-gray-900;
+} */
+
+/* Dark mode */
+html.dark {
+  --tw-bg-opacity: 1;
 }
 
-
-
-/* Scrollbar for WebKit (Chrome, Edge, Safari) */
+/* Scrollbar for WebKit (Chrome, Edge, Safari) - Light Mode */
 ::-webkit-scrollbar {
   width: 10px;               /* width of vertical scrollbar */
   height: 10px;              /* height of horizontal scrollbar */
 }
 
 ::-webkit-scrollbar-track {
-  background: #f0f0f0;       /* track color */
+  background: oklch(0.985 0 0);       /* Light mode track using sidebar color */
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #4f46e5, #3b82f6); /* gradient thumb */
+  background: linear-gradient(180deg, oklch(0.205 0 0), oklch(0.488 0.243 264.376)); /* Light mode gradient */
   border-radius: 10px;
-  border: 2px solid #f0f0f0; /* space around thumb */
+  border: 2px solid oklch(0.985 0 0); /* Light mode border */
   transition: background 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #6366f1, #2563eb);
+  background: linear-gradient(180deg, oklch(0.269 0 0), oklch(0.627 0.265 303.9));
 }
 
-/* Firefox */
+/* Dark Mode Scrollbars */
+.dark ::-webkit-scrollbar-track {
+  background: oklch(0.145 0 0);       /* Dark mode background */
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, oklch(0.488 0.243 264.376), oklch(0.627 0.265 303.9)); /* Dark mode gradient */
+  border: 2px solid oklch(0.145 0 0); /* Dark mode border */
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, oklch(0.556 0.3 264.376), oklch(0.707 0.3 303.9));
+}
+
+/* Firefox Scrollbars */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #4f46e5 #f0f0f0;
+  scrollbar-color: oklch(0.205 0 0) oklch(0.985 0 0); /* Light mode: thumb track */
+}
+
+/* Firefox Dark Mode */
+.dark * {
+  scrollbar-color: oklch(0.488 0.243 264.376) oklch(0.145 0 0); /* Dark mode: thumb track */
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* Additional theme transition enhancements */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* Enhanced focus states for accessibility */
+  *:focus-visible {
+    outline: 2px solid oklch(var(--ring));
+    outline-offset: 2px;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Selection colors that work in both themes */
+  ::selection {
+    background-color: oklch(var(--primary) / 0.2);
+    color: oklch(var(--primary-foreground));
+  }
+}
+
+/* Custom animations for theme transitions */
+@keyframes theme-transition {
+  from {
+    opacity: 0.8;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.theme-transition {
+  animation: theme-transition 0.3s ease-in-out;
+}
+
+/* Ensure proper contrast for form elements */
+input, textarea, select {
+  color-scheme: light dark;
+}
+
+.dark input,
+.dark textarea, 
+.dark select {
+  color-scheme: dark;
+}
+
+/* Loading skeleton animations that work in both themes */
+@keyframes skeleton-loading {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    oklch(var(--muted)) 25%,
+    oklch(var(--muted) / 0.5) 50%,
+    oklch(var(--muted)) 75%
+  );
+  background-size: 200px 100%;
+  animation: skeleton-loading 1.2s ease-in-out infinite;
+}
+
+/* Print styles that respect theme */
+@media print {
+  * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
 }

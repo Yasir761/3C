@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { trpc } from "@/utils/trpc";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card } from "@/components/ui/card";
+import { signOut } from "next-auth/react";
 
 export default function SessionList({
   selected,
@@ -15,32 +19,44 @@ export default function SessionList({
   onCreateSession?: (title: string, topic: string) => Promise<string>;
 }) {
   const [page, setPage] = useState(1);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [newTitle, setNewTitle] = useState("");
   const utils = trpc.useUtils();
 
-  // Fetch only sessions belonging to the logged-in user
-  const { data, isLoading } = trpc.chat.listSessions.useQuery({
-    page,
-    pageSize: 12,
-  });
+  // 🚀 poll sessions so they update without refresh
+  const { data, isLoading } = trpc.chat.listSessions.useQuery(
+    { page, pageSize: 12 },
+    { refetchInterval: 3000 } // every 3s like ChatGPT sidebar
+  );
 
   const create = trpc.chat.createSession.useMutation({
     onSuccess: async (s) => {
-      await utils.chat.listSessions.invalidate({ page, pageSize: 12 });
+      await utils.chat.listSessions.invalidate();
       onSelect(s.id);
     },
   });
 
   const remove = trpc.chat.deleteSession.useMutation({
     onSuccess: async () => {
-      await utils.chat.listSessions.invalidate({ page, pageSize: 12 });
-      if (selected) onSelect(""); // reset selection if deleted
+      await utils.chat.listSessions.invalidate();
+      if (selected) onSelect("");
+    },
+  });
+
+  const update = trpc.chat.updateSession.useMutation({
+    onSuccess: async () => {
+      await utils.chat.listSessions.invalidate();
+      setEditingId(null);
     },
   });
 
   const handleCreateSession = async () => {
     if (onCreateSession) {
       try {
-        const sessionId = await onCreateSession("New career session", "General career");
+        const sessionId = await onCreateSession(
+          "New career session",
+          "General career"
+        );
         onSelect(sessionId);
       } catch (error) {
         console.error("Failed to create session:", error);
@@ -53,99 +69,169 @@ export default function SessionList({
     }
   };
 
+  const handleSave = (sessionId: string) => {
+    if (newTitle.trim() !== "") {
+      update.mutate({ sessionId, title: newTitle });
+    } else {
+      setEditingId(null);
+    }
+  };
+
   return (
-    <aside className="w-full sm:w-72 md:w-80 bg-white border-r border-gray-200 flex flex-col transition-all duration-200">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-3 px-3 pt-3">
-        <h3 className="text-sm font-semibold text-gray-700">Career Sessions</h3>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="flex items-center gap-1 text-xs px-2 py-1 rounded-md bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md hover:shadow-lg transition"
+    <aside className="w-full bg-card border-r border-border flex flex-col h-full">
+      {/* Header - Fixed */}
+      <div className="flex-shrink-0 flex items-center justify-between px-4 py-2.5 border-b bg-card">
+        <h3 className="text-sm font-semibold text-foreground">
+          Career Sessions
+        </h3>
+        <Button
+          size="sm"
           onClick={handleCreateSession}
-          aria-label="New session"
+          className="gap-1 h-7 px-2"
         >
-          <Plus size={14} />
-          New
-        </motion.button>
+          <Plus className="h-3 w-3" />
+          <span className="hidden sm:inline text-xs">New</span>
+        </Button>
       </div>
 
-      {/* Session List */}
-      <div className="flex-1 overflow-auto px-2 pb-2">
-        {isLoading ? (
-          <div className="p-3 text-sm text-gray-500">Loading sessions…</div>
-        ) : data && data.length > 0 ? (
-          <ul className="space-y-2">
-            {data.map((s) => {
-              const isSelected = selected === s.id;
-              return (
-                <motion.li
-                  key={s.id}
-                  layout
-                  whileHover={{ scale: 1.02 }}
-                  className={`p-3 rounded-2xl flex justify-between items-center cursor-pointer transition-all duration-200 shadow-sm ${
-                    isSelected
-                      ? "bg-gradient-to-br from-blue-50 via-indigo-50 to-indigo-100 border border-indigo-300"
-                      : "bg-white hover:bg-gray-50"
-                  }`}
-                >
-                  <div
-                    className="flex-1 min-w-0"
-                    onClick={() => onSelect(s.id)}
-                  >
-                    <div className="text-sm font-medium truncate text-gray-800">
-                      {s.title}
-                    </div>
-                    <div className="text-xs text-gray-500 truncate mt-0.5">
-                      {s.messages?.[0]?.content?.slice(0, 50) ?? "No messages yet"}...
-                    </div>
-                  </div>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    className="ml-2 p-1 rounded hover:bg-red-100 text-gray-400 hover:text-red-600 transition"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      remove.mutate({ sessionId: s.id });
-                    }}
-                    aria-label="Delete session"
-                  >
-                    <Trash2 size={14} />
-                  </motion.button>
-                </motion.li>
-              );
-            })}
-          </ul>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="p-6 text-center text-gray-500 flex flex-col items-center justify-center gap-2"
-          >
-            <div className="text-4xl animate-bounce">🎯</div>
-            <div className="font-medium">No career sessions yet</div>
-            <div className="text-xs">Click &quot;New&quot; or choose a topic to start</div>
-          </motion.div>
-        )}
+      {/* Session List - Scrollable */}
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full">
+          <div className="p-2">
+            {isLoading ? (
+              <div className="flex items-center justify-center py-6">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-indigo-500"></div>
+                <span className="ml-2 text-xs text-muted-foreground">
+                  Loading...
+                </span>
+              </div>
+            ) : data && data.length > 0 ? (
+              <div className="space-y-1.5">
+                {data.map((s) => {
+                  const isSelected = selected === s.id;
+                  const isEditing = editingId === s.id;
+
+                  return (
+                    <Card
+                      key={s.id}
+                      onClick={() => !isEditing && onSelect(s.id)}
+                      className={`p-2.5 cursor-pointer transition-all duration-200 hover:shadow-sm ${
+                        isSelected
+                          ? "border-indigo-500 bg-indigo-50 shadow-sm"
+                          : "hover:bg-muted/30 hover:border-border"
+                      }`}
+                    >
+                      <div className="flex justify-between items-center gap-2">
+                        <div className="flex-1 min-w-0">
+                          {isEditing ? (
+                            <input
+                              className="w-full text-xs border rounded px-1 py-0.5"
+                              value={newTitle}
+                              autoFocus
+                              onChange={(e) => setNewTitle(e.target.value)}
+                              onBlur={() => handleSave(s.id)}
+                              onKeyDown={(e) =>
+                                e.key === "Enter" && handleSave(s.id)
+                              }
+                            />
+                          ) : (
+                            <div
+                              className="text-xs font-medium truncate text-foreground leading-tight"
+                              onDoubleClick={(e) => {
+                                e.stopPropagation();
+                                setEditingId(s.id);
+                                setNewTitle(s.title);
+                              }}
+                            >
+                              {/* 🚀 Auto-title update like ChatGPT */}
+                              {s.title && s.title !== "New career session"
+                                ? s.title
+                                : s.messages?.[0]?.content?.slice(0, 30) ||
+                                  "New chat"}
+                            </div>
+                          )}
+                          <div className="text-[10px] text-muted-foreground truncate mt-0.5 leading-tight">
+                            {s.messages?.[0]?.content?.slice(0, 40) ??
+                              "No messages yet"}
+                            {(s.messages?.[0]?.content?.length ?? 0) > 40
+                              ? "..."
+                              : ""}
+                          </div>
+                        </div>
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className="flex-shrink-0 p-1 rounded hover:bg-red-100 text-muted-foreground hover:text-red-600 transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            remove.mutate({ sessionId: s.id });
+                          }}
+                        >
+                          <Trash2 size={10} />
+                        </motion.button>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-8 px-3 text-center">
+                <div className="text-2xl mb-2">🎯</div>
+                <div className="text-xs font-medium text-foreground mb-1">
+                  No sessions yet
+                </div>
+                <div className="text-[10px] text-muted-foreground">
+                  Click &quot;New&quot; to start
+                </div>
+              </div>
+            )}
+          </div>
+        </ScrollArea>
       </div>
 
-      {/* Pagination */}
-      <div className="mt-3 flex items-center justify-between text-xs text-gray-500 px-3 pb-3">
-        <button
-          className="px-2 py-1 rounded hover:bg-gray-100 transition disabled:opacity-50"
-          onClick={() => setPage((p) => Math.max(1, p - 1))}
-          disabled={page === 1}
-        >
-          Prev
-        </button>
-        <div className="font-medium">Page {page}</div>
-        <button
-          className="px-2 py-1 rounded hover:bg-gray-100 transition disabled:opacity-50"
-          onClick={() => setPage((p) => p + 1)}
-          disabled={data && data.length < 12}
-        >
-          Next
-        </button>
+      {/* Footer - Fixed */}
+      {/* Footer - Fixed */}
+<div className="flex-shrink-0 border-t bg-card">
+  <div className="flex items-center justify-between px-3 py-2">
+    {/* Pagination */}
+    <div className="flex items-center gap-3"> {/* increased gap */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setPage((p) => Math.max(1, p - 1))}
+        disabled={page === 1}
+        className="px-2 py-1 h-6 text-[10px] min-w-[36px]"
+      >
+        Prev
+      </Button>
+
+      <div className="px-3 py-1 text-[10px] font-medium text-muted-foreground min-w-[24px] text-center border rounded border-border bg-muted/10">
+        {page}
       </div>
+
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setPage((p) => p + 1)}
+        disabled={data && data.length < 12}
+        className="px-2 py-1 h-6 text-[10px] min-w-[36px]"
+      >
+        Next
+      </Button>
+    </div>
+
+    {/* Logout Icon */}
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={() => signOut({ callbackUrl: "/" })}
+      className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-red-50 transition-colors"
+    >
+      <LogOut className="h-3 w-3" />
+    </Button>
+  </div>
+</div>
+
     </aside>
   );
 }

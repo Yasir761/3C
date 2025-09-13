@@ -8,10 +8,12 @@ const MAX_TOKENS = 4000;
 
 export const chatRouter = router({
   listSessions: protectedProcedure
-    .input(z.object({
-      page: z.number().default(1),
-      pageSize: z.number().default(10),
-    }))
+    .input(
+      z.object({
+        page: z.number().default(1),
+        pageSize: z.number().default(10),
+      })
+    )
     .query(async ({ input, ctx }) => {
       return prisma.chatSession.findMany({
         where: { userId: ctx.userId },
@@ -25,10 +27,12 @@ export const chatRouter = router({
     }),
 
   createSession: protectedProcedure
-    .input(z.object({
-      title: z.string(),
-      topic: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        title: z.string(),
+        topic: z.string().optional(),
+      })
+    )
     .mutation(async ({ input, ctx }) => {
       return prisma.chatSession.create({
         data: {
@@ -47,16 +51,20 @@ export const chatRouter = router({
       });
       if (!session) throw new Error("Not found or unauthorized");
 
-      await prisma.message.deleteMany({ where: { sessionId: input.sessionId } });
+      await prisma.message.deleteMany({
+        where: { sessionId: input.sessionId },
+      });
       return prisma.chatSession.delete({ where: { id: input.sessionId } });
     }),
 
   getMessages: protectedProcedure
-    .input(z.object({
-      sessionId: z.string(),
-      page: z.number().default(1),
-      pageSize: z.number().default(50),
-    }))
+    .input(
+      z.object({
+        sessionId: z.string(),
+        page: z.number().default(1),
+        pageSize: z.number().default(50),
+      })
+    )
     .query(async ({ input, ctx }) => {
       return prisma.message.findMany({
         where: { sessionId: input.sessionId, session: { userId: ctx.userId } },
@@ -66,19 +74,18 @@ export const chatRouter = router({
       });
     }),
 
-  sendMessage: protectedProcedure
+    sendMessage: protectedProcedure
     .input(z.object({
       sessionId: z.string(),
       content: z.string(),
     }))
     .mutation(async ({ input, ctx }) => {
-      // Verify session ownership
       const session = await prisma.chatSession.findFirst({
         where: { id: input.sessionId, userId: ctx.userId },
-        include: { user: { include: { profile: true } } },
+        include: { user: { include: { profile: true } }, messages: true },
       });
       if (!session) throw new Error("Unauthorized");
-
+  
       // Save user message
       const userMsg = await prisma.message.create({
         data: {
@@ -87,20 +94,28 @@ export const chatRouter = router({
           content: input.content,
         },
       });
-
+  
+      // ✅ Auto-update session title if it's still the default and has no user messages
+      if (session.messages.length === 0) {
+        const autoTitle = input.content.slice(0, 30) + (input.content.length > 30 ? "..." : "");
+        await prisma.chatSession.update({
+          where: { id: input.sessionId },
+          data: { title: autoTitle },
+        });
+      }
+  
       // Load all messages
       const allMessages = await prisma.message.findMany({
         where: { sessionId: input.sessionId },
         orderBy: { createdAt: "asc" },
       });
-
-      // Build AI prompt
+  
       let tokenCount = 0;
       const groqMessages: { role: "user" | "assistant" | "system"; content: string }[] = [
         systemPrompt(),
         ...(session.user?.profile ? [profilePrompt(session.user.profile)] : []),
       ];
-
+  
       for (let i = allMessages.length - 1; i >= 0; i--) {
         const msg = allMessages[i];
         const msgTokens = Math.ceil(msg.content.length / 4);
@@ -108,17 +123,17 @@ export const chatRouter = router({
         groqMessages.unshift({ role: msg.role as "user" | "assistant", content: msg.content });
         tokenCount += msgTokens;
       }
-
+  
       if (allMessages.length > groqMessages.length) {
         groqMessages.unshift({
           role: "system",
           content: "Older messages summarized due to token limits.",
         });
       }
-
+  
       // Ask AI
       const aiText = await askGroq(groqMessages);
-
+  
       const aiMsg = await prisma.message.create({
         data: {
           sessionId: input.sessionId,
@@ -126,12 +141,32 @@ export const chatRouter = router({
           content: aiText,
         },
       });
-
+  
       await prisma.chatSession.update({
         where: { id: input.sessionId },
         data: { updatedAt: new Date() },
       });
-
+  
       return { userMsg, aiMsg };
+    }),
+  
+
+  updateSession: protectedProcedure
+    .input(
+      z.object({
+        sessionId: z.string(),
+        title: z.string().min(1).max(100),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      const session = await prisma.chatSession.findFirst({
+        where: { id: input.sessionId, userId: ctx.userId },
+      });
+      if (!session) throw new Error("Not found or unauthorized");
+
+      return prisma.chatSession.update({
+        where: { id: input.sessionId },
+        data: { title: input.title },
+      });
     }),
 });
