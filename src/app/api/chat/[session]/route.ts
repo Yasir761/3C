@@ -7,7 +7,7 @@ export const GET = async (
   req: NextRequest,
   context: { params: { session: string } }
 ) => {
-  const { session } = await context.params; // unwrap Promise
+  const { session } =  context.params; 
   const ctx = await createContext();
 
   return fetchRequestHandler({
@@ -20,9 +20,9 @@ export const GET = async (
 
 export const POST = async (
   req: NextRequest,
-  context: { params: Promise<{ session: string }> }
+  context: { params: { session: string } }
 ) => {
-  const { session } = await context.params;
+  const { session } =  context.params;
   const ctx = await createContext();
 
   // Extract body
