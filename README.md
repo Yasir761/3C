@@ -69,8 +69,8 @@ npm install
 yarn
 ```
 
-```bash
 Create a .env file in the root with the following variables:
+```bash
 NEXT_PUBLIC_APP_URL=https://yourdomain.com
 DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DATABASE
 NEXTAUTH_SECRET=your_nextauth_secret
@@ -85,7 +85,7 @@ Start the development server
 ```
 
 ```bash
-Copy code
+
 npm run dev
 # or
 yarn dev
