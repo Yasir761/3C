@@ -69,13 +69,14 @@ npm install
 yarn
 ```
 
-***Set up environment variables***
+```bash
 Create a .env file in the root with the following variables:
 NEXT_PUBLIC_APP_URL=https://yourdomain.com
 DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DATABASE
 NEXTAUTH_SECRET=your_nextauth_secret
 GROQ_API_KEY=your_groq_api_key
 Run database migrations
+```
 
 ```bash
 Copy code
