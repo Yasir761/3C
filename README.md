@@ -3,7 +3,7 @@
 
 An AI-powered career counseling chat app built with Next.js, TypeScript, tRPC, TanStack Query, ShadCN/UI, and PostgreSQL. It provides intelligent career advice, chat history persistence, and session management with a modern, responsive UI.
 
-🚀 Live Demo: 🚀 Live Demo: https://your-vercel-url.vercel.app
+🚀 Live Demo: 🚀 Live Demo: https://3-c-amber.vercel.app/
 
 📦 Repository: https://github.com/Yasir761/3C
 
