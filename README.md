@@ -59,11 +59,9 @@ It provides intelligent career advice, chat history persistence, and session man
 ```bash
 git clone https://github.com/Yasir761/3C.git
 cd 3C
-Install dependencies
  ```
-
+Install dependencies
 ```bash
-Copy code
 npm install
 # or
 yarn
