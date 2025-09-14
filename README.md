@@ -55,5 +55,44 @@ It provides intelligent career advice, chat history persistence, and session man
 
 ---
 
+1. **Clone the repo**  
+```bash
+git clone https://github.com/Yasir761/3C.git
+cd 3C
+Install dependencies
+ ```
+
+```bash
+Copy code
+npm install
+# or
+yarn
+```
+
+***Set up environment variables***
+Create a .env file in the root with the following variables:
+NEXT_PUBLIC_APP_URL=https://yourdomain.com
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DATABASE
+NEXTAUTH_SECRET=your_nextauth_secret
+GROQ_API_KEY=your_groq_api_key
+Run database migrations
+
+```bash
+Copy code
+npx prisma migrate dev
+Start the development server
+```
+
+```bash
+Copy code
+npm run dev
+# or
+yarn dev
+```
+***Open the app***
+Visit http://localhost:3000 in your browser.
+
+
+
 ## 👨‍💻 Authors
 - [Yasir](https://codilad.dev)
