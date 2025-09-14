@@ -92,25 +92,21 @@ export default function Home() {
 
         {/* Chat Preview Card */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.9 }}
-          className="mt-16 w-full max-w-xl"
-        >
-          <Card className="border shadow-xl bg-card/90 backdrop-blur-sm">
-            <CardContent className="p-6 space-y-3">
-              <div className="self-start bg-secondary text-secondary-foreground px-4 py-2 rounded-xl max-w-xs">
-                Hi! I’m your AI career coach. Ready to explore?
-              </div>
-              <div className="self-end bg-accent text-accent-foreground px-4 py-2 rounded-xl max-w-xs">
-                Help me choose my ideal career path.
-              </div>
-              <div className="self-start bg-secondary text-secondary-foreground px-4 py-2 rounded-xl max-w-xs animate-pulse">
-                Typing...
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+  initial={{ opacity: 0, y: 20, scale: 0.95 }}
+  animate={{ opacity: 1, y: 0, scale: 1 }}
+  transition={{ duration: 0.8, delay: 0.9 }}
+  whileHover={{ scale: 1.02, rotate: 0.5 }}
+  className="mt-16 w-full max-w-xl mx-auto"
+>
+  <Image
+    src="/hero.png"
+    alt="Hero Preview Light & Dark"
+    width={1000}
+    height={600}
+    className="rounded-2xl shadow-2xl border"
+    priority
+  />
+</motion.div>
       </main>
 
       {/* Features Section */}
