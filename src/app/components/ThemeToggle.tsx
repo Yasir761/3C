@@ -1,4 +1,4 @@
-// components/ThemeToggle.tsx
+
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -6,7 +6,7 @@ import { useTheme } from 'next-themes'
 
 export default function ThemeToggle() {
   const [mounted, setMounted] = useState(false)
-  const { theme, setTheme, resolvedTheme } = useTheme()
+  const { setTheme, resolvedTheme } = useTheme()
 
   useEffect(() => {
     setMounted(true)
@@ -59,7 +59,7 @@ export default function ThemeToggle() {
 // Simple version using design system colors
 export function SimpleThemeToggle() {
   const [mounted, setMounted] = useState(false)
-  const { theme, setTheme, resolvedTheme } = useTheme()
+  const { setTheme, resolvedTheme } = useTheme()
 
   useEffect(() => {
     setMounted(true)
@@ -163,7 +163,7 @@ export function ThemeSelector() {
 // Floating Action Button style toggle
 export function FloatingThemeToggle() {
   const [mounted, setMounted] = useState(false)
-  const { theme, setTheme, resolvedTheme } = useTheme()
+  const { setTheme, resolvedTheme } = useTheme()
 
   useEffect(() => {
     setMounted(true)

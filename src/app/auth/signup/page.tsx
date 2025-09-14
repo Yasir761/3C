@@ -33,7 +33,7 @@ export default function SignupPage() {
         return
       }
 
-      // Automatically log in the user with their new credentials
+      // Log in automatically
       const result = await signIn("credentials", {
         redirect: false,
         email,
@@ -43,9 +43,9 @@ export default function SignupPage() {
       if (result?.error) {
         setError(result.error)
       } else {
-        window.location.href = "/chat" // Redirect only after successful login
+        window.location.href = "/chat"
       }
-    } catch (err) {
+    } catch {
       setError("Failed to sign up. Please try again.")
     } finally {
       setLoading(false)
@@ -70,14 +70,12 @@ export default function SignupPage() {
 
       <Card className="max-w-md w-full rounded-2xl shadow-xl p-8 space-y-6 bg-card/90 backdrop-blur-sm relative z-10">
         <CardContent className="flex flex-col items-center text-center p-0">
-          {/* Logo / Header */}
+          {/* Header */}
           <div className="flex flex-col items-center text-center">
             <div className="w-14 h-14 flex items-center justify-center rounded-full bg-primary/10 mb-4">
               <User className="w-7 h-7 text-primary" />
             </div>
-            <h1 className="text-2xl font-bold text-foreground">
-              Create an Account
-            </h1>
+            <h1 className="text-2xl font-bold text-foreground">Create an Account</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Start your career journey with us
             </p>
@@ -137,10 +135,7 @@ export default function SignupPage() {
           {/* Link to Sign In */}
           <p className="text-sm text-muted-foreground mt-6 text-center">
             Already have an account?{" "}
-            <Link
-              href="/auth/signin"
-              className="text-primary font-medium hover:underline"
-            >
+            <Link href="/auth/signin" className="text-primary font-medium hover:underline">
               Sign In
             </Link>
           </p>

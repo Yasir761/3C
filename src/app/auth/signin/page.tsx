@@ -8,12 +8,25 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { FaRegLightbulb, FaClock, FaChartLine } from "react-icons/fa"
+import { Suspense } from "react"
 
-export default function SignInPage() {
+// 🔹 Child component responsible for reading URL params
+function CallbackUrlProvider({
+  onCallbackUrl,
+}: {
+  onCallbackUrl: (url: string) => void
+}) {
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get("callbackUrl") || "/chat"
 
+  // push value up
+  onCallbackUrl(callbackUrl)
+
+  return null
+}
+
+export default function SignInPage() {
+  const [callbackUrl, setCallbackUrl] = useState("/chat")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
@@ -37,7 +50,7 @@ export default function SignInPage() {
       } else {
         window.location.href = callbackUrl
       }
-    } catch (err) {
+    } catch {
       setError("Something went wrong. Try again.")
     } finally {
       setLoading(false)
@@ -46,6 +59,11 @@ export default function SignInPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+      {/* Suspense JUST around searchParams consumer */}
+      <Suspense>
+        <CallbackUrlProvider onCallbackUrl={setCallbackUrl} />
+      </Suspense>
+
       {/* Floating Gradient Blobs */}
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
@@ -67,9 +85,7 @@ export default function SignInPage() {
             <div className="w-14 h-14 flex items-center justify-center rounded-full bg-primary/10 mb-4">
               <User className="w-7 h-7 text-primary" />
             </div>
-            <h1 className="text-2xl font-bold text-foreground">
-              Welcome back
-            </h1>
+            <h1 className="text-2xl font-bold text-foreground">Welcome back</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Sign in to continue your career journey
             </p>

@@ -1,7 +1,7 @@
-// middleware.ts
+
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+
 
 // Protect /chat and all API routes except NextAuth routes
 export const config = {
@@ -12,7 +12,7 @@ export const config = {
 };
 
 export default withAuth(
-  async function middleware(req: NextRequest) {
+  async function middleware() {
     // If user is authenticated, continue
     return NextResponse.next();
   },

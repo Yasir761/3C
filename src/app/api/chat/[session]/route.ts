@@ -1,38 +1,39 @@
+import { NextRequest } from "next/server";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { chatRouter } from "@/server/routers/chat"; 
 import { createContext } from "@/server/trpc";
 
-
-export const GET = async (req: Request, { params }: { params: { session: string } }) => {
-  // You can fetch messages for a specific session
+export const GET = async (
+  req: NextRequest,
+  context: { params: { session: string } }
+) => {
+  const { session } = await context.params; // unwrap Promise
   const ctx = await createContext();
 
-  // Optional: verify the session belongs to the logged-in user
-  const sessionId = params.session;
-
-  // Forward request to TRPC router
   return fetchRequestHandler({
-    endpoint: `/api/chat/${sessionId}`,
+    endpoint: `/api/chat/${session}`,
     req,
     router: chatRouter,
     createContext: () => ctx,
   });
 };
 
-export const POST = async (req: Request, { params }: { params: { session: string } }) => {
+export const POST = async (
+  req: NextRequest,
+  context: { params: Promise<{ session: string }> }
+) => {
+  const { session } = await context.params;
   const ctx = await createContext();
-  const sessionId = params.session;
 
-  // Get body
+  // Extract body
   const body = await req.json();
   const { content } = body;
 
-  // Forward to TRPC mutation
   return fetchRequestHandler({
-    endpoint: `/api/chat/${sessionId}`,
+    endpoint: `/api/chat/${session}`,
     req: new Request(req.url, {
       method: "POST",
-      body: JSON.stringify({ sessionId, content }),
+      body: JSON.stringify({ sessionId: session, content }),
       headers: req.headers,
     }),
     router: chatRouter,

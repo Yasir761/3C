@@ -6,7 +6,7 @@ import SessionList from "@/app/components/SessionList"
 import ChatWindow from "@/app/components/ChatWindow"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { Menu, Settings, Sun, Moon, Monitor } from "lucide-react"
+import { Menu, Sun, Moon, Monitor } from "lucide-react"
 import { useTheme } from "next-themes"
 import Image from "next/image"
 
