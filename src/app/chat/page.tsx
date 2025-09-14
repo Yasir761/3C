@@ -1,43 +1,38 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { trpc } from "@/utils/trpc"
-import SessionList from "@/app/components/SessionList"
-import ChatWindow from "@/app/components/ChatWindow"
-import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Menu, Sun, Moon, Monitor } from "lucide-react"
-import { useTheme } from "next-themes"
-import Image from "next/image"
+import { useState, useEffect } from "react";
+import { trpc } from "@/lib/trpc";
+import SessionList from "@/app/components/SessionList";
+import ChatWindow from "@/app/components/ChatWindow";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Menu, Sun, Moon, Monitor } from "lucide-react";
+import { useTheme } from "next-themes";
+import Image from "next/image";
 
 // ---------------------
-// Theme Toggle Component
+// Theme Toggle Component (Desktop)
 // ---------------------
 function ThemeToggle() {
-  const [mounted, setMounted] = useState(false)
-  const [isOpen, setIsOpen] = useState(false)
-  const { theme, setTheme, resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false); // Ensure hydration complete before accessing theme
+  const [isOpen, setIsOpen] = useState(false);
+  const { theme, setTheme, resolvedTheme } = useTheme();
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  useEffect(() => setMounted(true), []);
 
-  if (!mounted) {
-    return <div className="w-9 h-9 rounded-md bg-muted animate-pulse" />
-  }
+  if (!mounted) return <div className="w-9 h-9 rounded-md bg-muted animate-pulse" />;
 
   const themes = [
     { name: "system", icon: Monitor, label: "System" },
     { name: "light", icon: Sun, label: "Light" },
     { name: "dark", icon: Moon, label: "Dark" },
-  ]
+  ];
 
   const currentTheme =
     themes.find((t) => t.name === theme) ||
     themes.find((t) => t.name === resolvedTheme) ||
-    themes[0]
-
-  const CurrentIcon = currentTheme.icon
+    themes[0];
+  const CurrentIcon = currentTheme.icon;
 
   return (
     <div className="relative">
@@ -54,27 +49,24 @@ function ThemeToggle() {
       <AnimatePresence>
         {isOpen && (
           <>
-            <div
-              className="fixed inset-0 z-10"
-              onClick={() => setIsOpen(false)}
-            />
+            {/* Backdrop to close dropdown */}
+            <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -10 }}
               transition={{ duration: 0.15 }}
-              className="absolute right-0 top-full mt-2 py-2 w-36 
-                         bg-popover border border-border rounded-lg shadow-lg z-20
-                         backdrop-blur-sm"
+              className="absolute right-0 top-full mt-2 py-2 w-36 bg-popover border border-border rounded-lg shadow-lg z-20 backdrop-blur-sm"
             >
+              {/* Theme options */}
               {themes.map((themeOption) => {
-                const IconComponent = themeOption.icon
+                const IconComponent = themeOption.icon;
                 return (
                   <button
                     key={themeOption.name}
                     onClick={() => {
-                      setTheme(themeOption.name)
-                      setIsOpen(false)
+                      setTheme(themeOption.name);
+                      setIsOpen(false);
                     }}
                     className={`w-full px-3 py-2 text-left hover:bg-accent 
                                text-popover-foreground hover:text-accent-foreground
@@ -86,39 +78,37 @@ function ThemeToggle() {
                                }`}
                   >
                     <IconComponent className="w-4 h-4" />
-                    <span className="text-sm font-medium">
-                      {themeOption.label}
-                    </span>
+                    <span className="text-sm font-medium">{themeOption.label}</span>
+                    {/* Indicator for current theme */}
                     {resolvedTheme === themeOption.name && (
                       <div className="ml-auto w-2 h-2 bg-primary rounded-full" />
                     )}
                   </button>
-                )
+                );
               })}
             </motion.div>
           </>
         )}
       </AnimatePresence>
     </div>
-  )
+  );
 }
 
 // ---------------------
-// Simple Toggle (mobile)
+// Simple Toggle Component (Mobile)
 // ---------------------
 function SimpleThemeToggle() {
-  const [mounted, setMounted] = useState(false)
-  const { setTheme, resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false);
+  const { setTheme, resolvedTheme } = useTheme();
 
-  useEffect(() => setMounted(true), [])
+  useEffect(() => setMounted(true), []);
 
-  if (!mounted) {
+  if (!mounted)
     return (
       <Button variant="outline" size="sm" disabled>
         <div className="w-4 h-4 bg-muted rounded animate-pulse" />
       </Button>
-    )
-  }
+    );
 
   return (
     <Button
@@ -128,28 +118,28 @@ function SimpleThemeToggle() {
       className="bg-card hover:bg-accent border-border transition-colors duration-200"
       aria-label="Toggle theme"
     >
-      {resolvedTheme === "dark" ? (
-        <Sun className="h-4 w-4" />
-      ) : (
-        <Moon className="h-4 w-4" />
-      )}
+      {resolvedTheme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
     </Button>
-  )
+  );
 }
 
 // ---------------------
-// Main App
+// Main App Component
 // ---------------------
 export default function CareerCounselorApp() {
-  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null); // Current chat session
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Mobile sidebar toggle
 
-  const createSession = trpc.chat.createSession.useMutation()
-  const sendMessage = trpc.chat.sendMessage.useMutation()
-  const utils = trpc.useUtils()
+  // TRPC mutations
+  const createSession = trpc.chat.createSession.useMutation();
+  const sendMessage = trpc.chat.sendMessage.useMutation();
+  const utils = trpc.useUtils();
 
-  // --- helpers
+  // ---------------------
+  // Helpers
+  // ---------------------
   const extractTitleFromPrompt = (prompt: string) => {
+    // Map prompt keywords to session titles
     const mappings: Record<string, string> = {
       "career path": "Career Path Discovery",
       "career assessment": "Career Path Discovery",
@@ -164,38 +154,35 @@ export default function CareerCounselorApp() {
       remote: "Remote Work Guide",
       education: "Education Planning",
       courses: "Education Planning",
-    }
-    const found = Object.keys(mappings).find((key) =>
-      prompt.toLowerCase().includes(key)
-    )
-    return found ? mappings[found] : "Career Counseling"
-  }
+    };
+    const found = Object.keys(mappings).find((key) => prompt.toLowerCase().includes(key));
+    return found ? mappings[found] : "Career Counseling";
+  };
 
+  // Create a session from user prompt
   const handleCreateSessionFromPrompt = async (prompt: string) => {
-    const title = extractTitleFromPrompt(prompt)
-    const newSession = await createSession.mutateAsync({
-      title,
-      topic: "Career Counseling",
-    })
-    setCurrentSessionId(newSession.id)
-    await sendMessage.mutateAsync({ sessionId: newSession.id, content: prompt })
+    const title = extractTitleFromPrompt(prompt);
+    const newSession = await createSession.mutateAsync({ title, topic: "Career Counseling" });
+    setCurrentSessionId(newSession.id);
 
+    // Send initial message to session
+    await sendMessage.mutateAsync({ sessionId: newSession.id, content: prompt });
+
+    // Refresh cache for sessions & messages
     await Promise.all([
       utils.chat.listSessions.invalidate({ page: 1, pageSize: 12 }),
-      utils.chat.getMessages.invalidate({
-        sessionId: newSession.id,
-        page: 1,
-        pageSize: 50,
-      }),
-    ])
-    return newSession.id
-  }
+      utils.chat.getMessages.invalidate({ sessionId: newSession.id, page: 1, pageSize: 50 }),
+    ]);
 
+    return newSession.id;
+  };
+
+  // Create an empty session
   const handleCreateEmptySession = async (title: string, topic: string) => {
-    const newSession = await createSession.mutateAsync({ title, topic })
-    await utils.chat.listSessions.invalidate({ page: 1, pageSize: 12 })
-    return newSession.id
-  }
+    const newSession = await createSession.mutateAsync({ title, topic });
+    await utils.chat.listSessions.invalidate({ page: 1, pageSize: 12 });
+    return newSession.id;
+  };
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background text-foreground transition-colors duration-300">
@@ -205,20 +192,10 @@ export default function CareerCounselorApp() {
           {/* Desktop Header */}
           <div className="flex items-center justify-between p-4 border-b border-border">
             <div className="flex items-center space-x-3">
-              <Image
-                src="/logo.png"
-                alt="App Logo"
-                width={32}
-                height={32}
-                className="rounded-lg"
-              />
+              <Image src="/logo.png" alt="App Logo" width={32} height={32} className="rounded-lg" />
               <div>
-                <h1 className="font-semibold text-card-foreground text-sm">
-                  Career Counselor
-                </h1>
-                <p className="text-muted-foreground text-xs">
-                  AI-Powered Guidance
-                </p>
+                <h1 className="font-semibold text-card-foreground text-sm">Career Counselor</h1>
+                <p className="text-muted-foreground text-xs">AI-Powered Guidance</p>
               </div>
             </div>
             <ThemeToggle />
@@ -249,20 +226,10 @@ export default function CareerCounselorApp() {
               {/* Mobile Header */}
               <div className="flex items-center justify-between p-4 border-b border-border">
                 <div className="flex items-center space-x-3">
-                  <Image
-                    src="/logo.png"
-                    alt="App Logo"
-                    width={32}
-                    height={32}
-                    className="rounded-lg"
-                  />
+                  <Image src="/logo.png" alt="App Logo" width={32} height={32} className="rounded-lg" />
                   <div>
-                    <h1 className="font-semibold text-card-foreground text-sm">
-                      Career Counselor
-                    </h1>
-                    <p className="text-muted-foreground text-xs">
-                      AI-Powered Guidance
-                    </p>
+                    <h1 className="font-semibold text-card-foreground text-sm">Career Counselor</h1>
+                    <p className="text-muted-foreground text-xs">AI-Powered Guidance</p>
                   </div>
                 </div>
                 <SimpleThemeToggle />
@@ -273,8 +240,8 @@ export default function CareerCounselorApp() {
                 <SessionList
                   selected={currentSessionId}
                   onSelect={(id) => {
-                    setCurrentSessionId(id)
-                    setIsSidebarOpen(false)
+                    setCurrentSessionId(id);
+                    setIsSidebarOpen(false);
                   }}
                   onCreateSession={handleCreateEmptySession}
                 />
@@ -295,7 +262,7 @@ export default function CareerCounselorApp() {
         />
       )}
 
-      {/* Main Content */}
+      {/* Main Content Area */}
       <main className="flex-1 flex flex-col min-w-0 relative">
         {/* Mobile Header */}
         <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-border bg-card shadow-sm transition-colors duration-300">
@@ -310,16 +277,8 @@ export default function CareerCounselorApp() {
           </Button>
 
           <div className="flex items-center space-x-2">
-            <Image
-              src="/logo.png"
-              alt="App Logo"
-              width={24}
-              height={24}
-              className="rounded"
-            />
-            <span className="font-semibold text-foreground text-sm">
-              Career Counselor
-            </span>
+            <Image src="/logo.png" alt="App Logo" width={24} height={24} className="rounded" />
+            <span className="font-semibold text-foreground text-sm">Career Counselor</span>
           </div>
 
           <SimpleThemeToggle />
@@ -334,5 +293,5 @@ export default function CareerCounselorApp() {
         </div>
       </main>
     </div>
-  )
+  );
 }

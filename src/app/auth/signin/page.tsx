@@ -1,70 +1,71 @@
-"use client"
+"use client";
 
-import { signIn } from "next-auth/react"
-import { useSearchParams } from "next/navigation"
-import { User, Mail, Lock } from "lucide-react"
-import Link from "next/link"
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Suspense } from "react"
+import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
+import { User, Mail, Lock } from "lucide-react";
+import Link from "next/link";
+import { useState, Suspense } from "react";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
-// 🔹 Child component responsible for reading URL params
+// 🔹 Child component responsible for extracting callback URL from query params
 function CallbackUrlProvider({
   onCallbackUrl,
 }: {
-  onCallbackUrl: (url: string) => void
+  onCallbackUrl: (url: string) => void;
 }) {
-  const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get("callbackUrl") || "/chat"
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/chat";
 
-  // push value up
-  onCallbackUrl(callbackUrl)
+  // Push value up to parent state
+  onCallbackUrl(callbackUrl);
 
-  return null
+  return null;
 }
 
 export default function SignInPage() {
-  const [callbackUrl, setCallbackUrl] = useState("/chat")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
+  // Form and state management
+  const [callbackUrl, setCallbackUrl] = useState("/chat");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
+  // Handle email/password login
   const handleEmailSignIn = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError("")
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
     try {
       const res = await signIn("credentials", {
-        redirect: false,
+        redirect: false, // Disable automatic redirect
         email,
         password,
-        callbackUrl,
-      })
+        callbackUrl,     // Redirect after successful login
+      });
 
       if (res?.error) {
-        setError("Invalid email or password")
+        setError("Invalid email or password");
       } else {
-        window.location.href = callbackUrl
+        window.location.href = callbackUrl; // Redirect manually
       }
     } catch {
-      setError("Something went wrong. Try again.")
+      setError("Something went wrong. Try again.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
-      {/* Suspense JUST around searchParams consumer */}
+      {/* Suspense wrapper for async searchParams */}
       <Suspense>
         <CallbackUrlProvider onCallbackUrl={setCallbackUrl} />
       </Suspense>
 
-      {/* Floating Gradient Blobs */}
+      {/* Floating gradient blobs for visual effect */}
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 0.3, scale: 1 }}
@@ -78,6 +79,7 @@ export default function SignInPage() {
         className="absolute bottom-10 right-[-120px] w-[280px] h-[280px] rounded-full bg-gradient-to-tr from-rose-500 to-purple-500 blur-3xl"
       />
 
+      {/* Sign-in card */}
       <Card className="max-w-md w-full rounded-2xl shadow-xl p-8 space-y-6 bg-card/90 backdrop-blur-sm relative z-10">
         <CardContent className="flex flex-col items-center text-center p-0">
           {/* Logo / Header */}
@@ -90,7 +92,8 @@ export default function SignInPage() {
               Sign in to continue your career journey
             </p>
           </div>
-          {/* Email + Password Sign In */}
+
+          {/* Email + Password Sign-In Form */}
           <form onSubmit={handleEmailSignIn} className="space-y-4 w-full mt-6">
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -114,9 +117,11 @@ export default function SignInPage() {
                 className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm bg-input text-foreground"
               />
             </div>
+            {/* Display error message */}
             {error && (
               <p className="text-sm text-destructive text-center">{error}</p>
             )}
+            {/* Submit button */}
             <Button
               type="submit"
               disabled={loading}
@@ -125,7 +130,8 @@ export default function SignInPage() {
               {loading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
-          {/* Link to Signup */}
+
+          {/* Link to Signup page */}
           <p className="text-sm text-muted-foreground text-center mt-6">
             Don’t have an account?{" "}
             <Link
@@ -138,5 +144,5 @@ export default function SignInPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

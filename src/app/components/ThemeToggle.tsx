@@ -1,27 +1,26 @@
-
 'use client'
 
 import { useState, useEffect } from 'react'
 import { useTheme } from 'next-themes'
 
+// Main theme toggle button (switches between light and dark)
 export default function ThemeToggle() {
-  const [mounted, setMounted] = useState(false)
-  const { setTheme, resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false) // Ensure component is mounted before accessing theme
+  const { setTheme, resolvedTheme } = useTheme() // resolvedTheme: 'light' | 'dark'
 
+  // Mark component as mounted to avoid hydration mismatch
   useEffect(() => {
     setMounted(true)
   }, [])
 
   if (!mounted) {
-    // Skeleton loader to prevent layout shift
-    return (
-      <div className="w-10 h-10 rounded-lg bg-muted animate-pulse" />
-    )
+    // Skeleton loader to prevent layout shift on initial render
+    return <div className="w-10 h-10 rounded-lg bg-muted animate-pulse" />
   }
 
   return (
     <button
-      onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+      onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')} // Toggle theme
       className="relative w-10 h-10 rounded-lg bg-card border border-border
                  shadow-sm hover:shadow-md hover:bg-accent
                  transition-all duration-200 ease-in-out
@@ -30,7 +29,7 @@ export default function ThemeToggle() {
       aria-label="Toggle theme"
     >
       <div className="relative w-5 h-5">
-        {/* Sun icon */}
+        {/* Sun icon (visible when theme is light) */}
         <svg
           className={`absolute inset-0 w-5 h-5 text-yellow-500 transition-all duration-300 transform ${
             resolvedTheme === 'dark' ? 'rotate-90 scale-0 opacity-0' : 'rotate-0 scale-100 opacity-100'
@@ -40,8 +39,8 @@ export default function ThemeToggle() {
         >
           <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z" />
         </svg>
-        
-        {/* Moon icon */}
+
+        {/* Moon icon (visible when theme is dark) */}
         <svg
           className={`absolute inset-0 w-5 h-5 text-blue-400 transition-all duration-300 transform ${
             resolvedTheme === 'dark' ? 'rotate-0 scale-100 opacity-100' : '-rotate-90 scale-0 opacity-0'
@@ -56,7 +55,7 @@ export default function ThemeToggle() {
   )
 }
 
-// Simple version using design system colors
+// Simple version using emoji
 export function SimpleThemeToggle() {
   const [mounted, setMounted] = useState(false)
   const { setTheme, resolvedTheme } = useTheme()
@@ -80,7 +79,7 @@ export function SimpleThemeToggle() {
   )
 }
 
-// Advanced theme selector with your design system
+// Dropdown selector for multiple theme options
 export function ThemeSelector() {
   const [mounted, setMounted] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
@@ -102,6 +101,7 @@ export function ThemeSelector() {
 
   return (
     <div className="relative">
+      {/* Trigger button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 px-3 py-2 rounded-lg 
@@ -126,10 +126,12 @@ export function ThemeSelector() {
 
       {isOpen && (
         <>
+          {/* Click outside overlay */}
           <div 
             className="fixed inset-0 z-10" 
             onClick={() => setIsOpen(false)}
           />
+          {/* Dropdown menu */}
           <div className="absolute right-0 top-full mt-2 py-2 w-40 
                           bg-popover border border-border rounded-lg shadow-lg z-20">
             {themes.map((themeOption) => (
@@ -160,7 +162,7 @@ export function ThemeSelector() {
   )
 }
 
-// Floating Action Button style toggle
+// Floating action button toggle
 export function FloatingThemeToggle() {
   const [mounted, setMounted] = useState(false)
   const { setTheme, resolvedTheme } = useTheme()

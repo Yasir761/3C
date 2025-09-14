@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import Link from "next/link"
 import Image from "next/image"
@@ -12,7 +12,8 @@ import logo from "../../public/logo.png"
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground relative overflow-hidden">
-      {/* Floating Gradient Blobs */}
+
+      {/* 🎨 Floating Gradient Blobs for visual flair */}
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 0.3, scale: 1 }}
@@ -26,7 +27,7 @@ export default function Home() {
         className="absolute bottom-10 right-[-120px] w-[280px] h-[280px] rounded-full bg-gradient-to-tr from-rose-500 to-purple-500 blur-3xl"
       />
 
-      {/* Navbar */}
+      {/* 🧭 Navbar */}
       <header className="w-full flex justify-between items-center px-6 py-4 md:px-12 fixed top-0 left-0 z-50 bg-background/70 backdrop-blur-md border-b border-border">
         <div className="flex items-center gap-2 font-bold text-lg">
           <Image src={logo} alt="3C Logo" width={36} height={36} />
@@ -44,8 +45,9 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* 🌟 Hero Section */}
       <main className="flex-1 flex flex-col items-center justify-center text-center px-6 py-32 md:px-12 relative">
+        {/* Hero Title */}
         <motion.h1
           initial={{ opacity: 0, y: -40 }}
           animate={{ opacity: 1, y: 0 }}
@@ -58,6 +60,7 @@ export default function Home() {
           </span>
         </motion.h1>
 
+        {/* Hero Subtitle */}
         <motion.p
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -68,7 +71,7 @@ export default function Home() {
           sleeps.
         </motion.p>
 
-        {/* Shiny CTA Button */}
+        {/* CTA Buttons */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -90,26 +93,26 @@ export default function Home() {
           </Button>
         </motion.div>
 
-        {/* Chat Preview Card */}
+        {/* Hero Image / Chat Preview */}
         <motion.div
-  initial={{ opacity: 0, y: 20, scale: 0.95 }}
-  animate={{ opacity: 1, y: 0, scale: 1 }}
-  transition={{ duration: 0.8, delay: 0.9 }}
-  whileHover={{ scale: 1.02, rotate: 0.5 }}
-  className="mt-16 w-full max-w-xl mx-auto"
->
-  <Image
-    src="/hero.png"
-    alt="Hero Preview Light & Dark"
-    width={1000}
-    height={600}
-    className="rounded-2xl shadow-2xl border"
-    priority
-  />
-</motion.div>
+          initial={{ opacity: 0, y: 20, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.9 }}
+          whileHover={{ scale: 1.02, rotate: 0.5 }}
+          className="mt-16 w-full max-w-xl mx-auto"
+        >
+          <Image
+            src="/hero.png"
+            alt="Hero Preview Light & Dark"
+            width={1000}
+            height={600}
+            className="rounded-2xl shadow-2xl border"
+            priority
+          />
+        </motion.div>
       </main>
 
-      {/* Features Section */}
+      {/* ⚡ Features Section */}
       <section className="px-6 md:px-12 py-20 bg-card relative">
         <h2 className="text-3xl font-bold text-center mb-12">Why Choose 3C?</h2>
         <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -144,7 +147,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
+      {/* 📝 Footer */}
       <footer className="px-6 md:px-12 py-6 border-t border-border text-sm text-muted-foreground flex justify-center">
         Made with ❤️ by{" "}
         <Link

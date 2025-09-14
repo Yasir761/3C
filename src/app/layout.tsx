@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css"; 
-import { Providers } from "@/app/providers"; // <-- import your Providers wrapper
+import { Providers } from "@/app/providers"; 
 
+//  Metadata for the app (used by Next.js for SEO, Open Graph, etc.)
 export const metadata: Metadata = {
   title: "3C - AI Career Counselor",
   description:
@@ -33,6 +34,7 @@ export const metadata: Metadata = {
   },
 };
 
+// Viewport / theme color settings for light & dark modes
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#6366f1" },
@@ -40,6 +42,7 @@ export const viewport: Viewport = {
   ],
 };
 
+//  Root layout wrapping the entire app
 export default function RootLayout({
   children,
 }: {
@@ -48,7 +51,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {/* ✅ Wrap entire app in Providers */}
+        {/* Wrap entire app in Providers to supply context, theme, auth, etc. */}
         <Providers>{children}</Providers>
       </body>
     </html>

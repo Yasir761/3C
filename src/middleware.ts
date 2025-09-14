@@ -1,19 +1,18 @@
-
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
-
-// Protect /chat and all API routes except NextAuth routes
+// ✅ Protect these routes
 export const config = {
   matcher: [
-    "/chat/:path*", // protect all chat pages
-    "/api/:path*",  // protect all API routes
+    "/chat/:path*", // All chat pages
+    "/api/:path*",  // All API routes
   ],
 };
 
+// ✅ Middleware to enforce authentication
 export default withAuth(
   async function middleware() {
-    // If user is authenticated, continue
+    // User is authenticated, continue
     return NextResponse.next();
   },
   {
@@ -22,7 +21,7 @@ export default withAuth(
       authorized: ({ token }) => !!token,
     },
     pages: {
-      // Redirect unauthorized users to login
+      // Redirect unauthorized users to login page
       signIn: "/auth/signin",
     },
   }

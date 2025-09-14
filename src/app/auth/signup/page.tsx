@@ -1,60 +1,63 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { signIn } from "next-auth/react"
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { User, Mail, Lock } from "lucide-react"
+import { useState } from "react";
+import Link from "next/link";
+import { signIn } from "next-auth/react";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { User, Mail, Lock } from "lucide-react";
 
 export default function SignupPage() {
-  const [email, setEmail] = useState("")
-  const [name, setName] = useState("")
-  const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  // Form state
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
+  // Handle signup form submission
   const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setLoading(true)
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
 
     try {
+      // Call backend signup API
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         body: JSON.stringify({ email, password, name }),
         headers: { "Content-Type": "application/json" },
-      })
+      });
 
       if (!res.ok) {
-        const data = await res.json()
-        setError(data.error || "Something went wrong")
-        return
+        const data = await res.json();
+        setError(data.error || "Something went wrong");
+        return;
       }
 
-      // Log in automatically
+      // Automatically log in after signup
       const result = await signIn("credentials", {
         redirect: false,
         email,
         password,
-      })
+      });
 
       if (result?.error) {
-        setError(result.error)
+        setError(result.error);
       } else {
-        window.location.href = "/chat"
+        window.location.href = "/chat"; // Redirect after successful signup/login
       }
     } catch {
-      setError("Failed to sign up. Please try again.")
+      setError("Failed to sign up. Please try again.");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
-      {/* Floating Gradient Blobs */}
+      {/* Floating gradient blobs */}
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 0.3, scale: 1 }}
@@ -68,6 +71,7 @@ export default function SignupPage() {
         className="absolute bottom-10 right-[-120px] w-[280px] h-[280px] rounded-full bg-gradient-to-tr from-rose-500 to-purple-500 blur-3xl"
       />
 
+      {/* Signup Card */}
       <Card className="max-w-md w-full rounded-2xl shadow-xl p-8 space-y-6 bg-card/90 backdrop-blur-sm relative z-10">
         <CardContent className="flex flex-col items-center text-center p-0">
           {/* Header */}
@@ -81,14 +85,16 @@ export default function SignupPage() {
             </p>
           </div>
 
+          {/* Display error message */}
           {error && (
             <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-lg mb-4 text-center">
               {error}
             </div>
           )}
 
-          {/* Form */}
+          {/* Signup Form */}
           <form onSubmit={handleSignup} className="space-y-4 w-full mt-6">
+            {/* Name field */}
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <input
@@ -100,6 +106,7 @@ export default function SignupPage() {
                 className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm bg-input text-foreground"
               />
             </div>
+            {/* Email field */}
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <input
@@ -111,6 +118,7 @@ export default function SignupPage() {
                 className="w-full pl-10 pr-3 py-2.5 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm bg-input text-foreground"
               />
             </div>
+            {/* Password field */}
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <input
@@ -123,6 +131,7 @@ export default function SignupPage() {
               />
             </div>
 
+            {/* Submit button */}
             <Button
               type="submit"
               disabled={loading}
@@ -132,7 +141,7 @@ export default function SignupPage() {
             </Button>
           </form>
 
-          {/* Link to Sign In */}
+          {/* Link to Sign In page */}
           <p className="text-sm text-muted-foreground mt-6 text-center">
             Already have an account?{" "}
             <Link href="/auth/signin" className="text-primary font-medium hover:underline">
@@ -142,5 +151,5 @@ export default function SignupPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
